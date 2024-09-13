@@ -21,6 +21,8 @@ public class OrderItemEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
     private String productId;
+    private String productName;
+    private int qty;
     private BigInteger price;
     private BigInteger discountPrice;
     private BigInteger totalPrice;

@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -21,5 +23,16 @@ public interface OrderControllerDoc {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Order createOrder(@RequestBody @Valid CreateOrderRequest createOrderRequest);
+    Order createOrder(@RequestBody @Valid CreateOrderRequest createOrderRequest);
+
+    @Operation(summary = "Find order by ID", description = "This endpoint allows you to find an order by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order found successfully"),
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
+    @GetMapping("/{orderId}")
+    @ResponseStatus(HttpStatus.OK)
+    Order findOrderById(@PathVariable String orderId);
+
 }

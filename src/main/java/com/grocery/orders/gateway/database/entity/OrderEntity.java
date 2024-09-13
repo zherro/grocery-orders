@@ -2,6 +2,8 @@ package com.grocery.orders.gateway.database.entity;
 
 import com.grocery.orders.domain.enums.OrderStatus;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
@@ -12,7 +14,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity(name = "tb_order")
@@ -25,6 +29,8 @@ public class OrderEntity {
     private String id;
     private String customerId;
     private String customerName;
+
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private BigInteger orderTotalDiscount;
     private BigInteger orderTotalPrice;
@@ -38,5 +44,7 @@ public class OrderEntity {
             this.id = UUID.randomUUID().toString();
         }
         status = OrderStatus.OPEN;
+        Optional.ofNullable(products).orElse(new ArrayList<>())
+                .forEach(p -> p.setOrder(this));
     }
 }

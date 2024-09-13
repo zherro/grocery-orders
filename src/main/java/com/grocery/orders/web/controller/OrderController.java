@@ -30,4 +30,11 @@ public class OrderController implements OrderControllerDoc {
                 .map(orderService::createOrder)
                 .get();
     }
+
+    @Override
+    public Order findOrderById(String orderId) {
+        log.info("m=findOrderById, finding order by ID: {}", orderId);
+        return orderService.findOrderById(orderId);
+    }
+
 }
