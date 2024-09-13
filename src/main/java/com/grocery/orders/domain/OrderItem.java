@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,5 +35,13 @@ public class OrderItem {
 
     public BigInteger getTotalPrice() {
         return Optional.ofNullable(totalPrice).orElse(BigInteger.ZERO);
+    }
+
+    public void addAppliedPromotion(final Promotion promotion, final BigInteger totalDiscount) {
+        appliedPromotions = Optional.ofNullable(appliedPromotions).orElse(new ArrayList<>());
+        appliedPromotions.add(OrderItemAppliedPromotion.builder()
+                        .promotionType(promotion.getType())
+                        .totalDiscount(totalDiscount)
+                        .enabled(true).build());
     }
 }

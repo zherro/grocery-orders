@@ -6,6 +6,7 @@ import com.grocery.orders.domain.OrderItemProduct;
 import com.grocery.orders.gateway.database.OrderRepository;
 import com.grocery.orders.gateway.http.ProductApiHttpIntegration;
 import com.grocery.orders.mapper.OrderMapper;
+import com.grocery.orders.usecases.ApplyOrderItemPromotionsUseCase;
 import com.grocery.orders.usecases.UpdateOrderItemWithProductUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class OrderService {
     private final ProductApiHttpIntegration productApiIntegration;
 
     private final UpdateOrderItemWithProductUseCase updateOrderItemWithProductUseCase;
+    private final ApplyOrderItemPromotionsUseCase applyOrderItemPromotionsUseCase;
 
     public Order createOrder(final Order order) {
         log.info("m=createOrder, saving order");
@@ -33,8 +35,8 @@ public class OrderService {
                 .orElseThrow(() -> new BusinessException("Unexpected error on create new order"));
     }
 
-    public Order findOrderById(final String uuid) {
-        var order = orderRepository.findById(uuid)
+    public Order findOrderById(final String orderId) {
+        var order = orderRepository.findById(orderId)
                 .map(orderMapper::entityToDto)
                 .orElseThrow(() -> new BusinessException("Order not found"));
 
@@ -42,7 +44,7 @@ public class OrderService {
             var products = order.getProducts().stream()
                     .map(productApiIntegration::enrichOrderProducts)
                     .map(updateOrderItemWithProductUseCase::execute)
-                    .map(OrderItemProduct::getOrderItem)
+                    .map(applyOrderItemPromotionsUseCase::execute)
                     .toList();
             order.setProducts(products);
         }
@@ -50,4 +52,18 @@ public class OrderService {
         return order;
     }
 
+    public Order updateOrder(final String orderId, final Order orderUpdate) {
+        var order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException("Order not found"));
+
+        return Optional.ofNullable(orderUpdate)
+                .map(orderMapper::dtoToEntity)
+                .map(o -> {
+                    order.setProducts(o.getProducts());
+                    return order;
+                })
+                .map(orderRepository::save)
+                .map(orderMapper::entityToDto)
+                .get();
+    }
 }

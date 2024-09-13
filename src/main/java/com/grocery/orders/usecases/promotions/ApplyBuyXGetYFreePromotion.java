@@ -26,6 +26,7 @@ public class ApplyBuyXGetYFreePromotion {
                         .orElse(BigInteger.ZERO).add(totalFreeItemValue);
                 orderItem.setDiscountPrice(discount);
                 orderItem.setTotalPrice(newTotalPrice);
+                orderItem.addAppliedPromotion(promotion, totalFreeItemValue);
             }
         }
     }

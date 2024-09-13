@@ -15,5 +15,5 @@ public class CreateOrderRequest {
     @NotBlank(message = "Customer name is required")
     private String customerName;
 
-    private List<ProductIdRequest> products;
+    private List<OrderItemRequest> products;
 }

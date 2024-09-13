@@ -5,6 +5,7 @@ import com.grocery.orders.gateway.service.OrderService;
 import com.grocery.orders.mapper.OrderMapper;
 import com.grocery.orders.web.controller.doc.OrderControllerDoc;
 import com.grocery.orders.web.request.CreateOrderRequest;
+import com.grocery.orders.web.request.UpdateOrderRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,4 +38,9 @@ public class OrderController implements OrderControllerDoc {
         return orderService.findOrderById(orderId);
     }
 
+    @Override
+    public Order updateOrder(String orderId, UpdateOrderRequest updateOrderRequest) {
+        return orderService.updateOrder(
+                orderId, Optional.of(updateOrderRequest).map(orderMapper::updateRequestToDto).get());
+    }
 }
