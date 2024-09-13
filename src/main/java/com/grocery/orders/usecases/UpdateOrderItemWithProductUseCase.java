@@ -13,7 +13,7 @@ public class UpdateOrderItemWithProductUseCase implements UseCase<OrderItemProdu
     public OrderItemProduct execute(OrderItemProduct input) {
         var orderItem = input.getOrderItem();
 
-        if(Objects.nonNull(input.getProduct())) {
+        if(Objects.nonNull(input.getProduct()) && Objects.nonNull(orderItem)) {
             orderItem.setProductName(input.getProduct().getName());
             orderItem.setPrice(input.getProduct().getPrice());
 
