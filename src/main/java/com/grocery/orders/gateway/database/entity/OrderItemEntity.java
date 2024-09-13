@@ -22,7 +22,7 @@ public class OrderItemEntity {
     private String id;
     private String productId;
     private String productName;
-    private int qty;
+    private long qty;
     private BigInteger price;
     private BigInteger discountPrice;
     private BigInteger totalPrice;
