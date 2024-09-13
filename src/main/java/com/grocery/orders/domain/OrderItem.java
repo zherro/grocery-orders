@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class OrderItem {
 
-    private Long id;
+    private String id;
     private String productId;
     private BigInteger price;
     private BigInteger discountPrice;

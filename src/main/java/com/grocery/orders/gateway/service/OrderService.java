@@ -1,0 +1,31 @@
+package com.grocery.orders.gateway.service;
+
+import com.grocery.orders.config.exception.BusinessException;
+import com.grocery.orders.domain.Order;
+import com.grocery.orders.gateway.database.OrderRepository;
+import com.grocery.orders.mapper.OrderMapper;
+import com.grocery.orders.web.request.CreateOrderRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
+
+    public Order createOrder(final Order order) {
+        log.info("m=createOrder, saving order");
+        return Optional.of(order)
+                .map(orderMapper::dtoToEntity)
+                .map(orderRepository::save)
+                .map(orderMapper::entityToDto)
+                .orElseThrow(() -> new BusinessException("Unexpected error on create new order"));
+    }
+
+}

@@ -11,11 +11,11 @@ import java.util.List;
 @Setter
 public class Order {
 
-    private Long id;
+    private String id;
     private String customerId;
     private String customerName;
     private OrderStatus status;
     private BigInteger orderTotalDiscount;
     private BigInteger orderTotalPrice;
-    private List<OrderItem> orderItems;
+    private List<OrderItem> products;
 }
