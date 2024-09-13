@@ -9,6 +9,7 @@ import com.grocery.orders.domain.enums.ProductStatus;
 import com.grocery.orders.gateway.http.factory.HttpClientFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,16 +19,20 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class ProductApiHttpIntegration {
 
+    @Value("${gateway.products.uri}")
+    private String productsApiUrl;
+
+    private final ObjectMapper objectMapper;
     private final HttpClientFactory httpClientFactory;
 
     public OrderItemProduct enrichOrderProducts(final OrderItem orderItem) {
         log.info("m=enrichOrderProducts, retrieving product information for ID: {}", orderItem.getProductId());
         try {
-            var response = httpClientFactory.HttpGetClient("http://localhost:8081/product/PWWe3w1SDU");
+            var response = httpClientFactory.HttpGetClient(
+                    productsApiUrl + String.format("/%s", orderItem.getProductId()));
 
             switch (response.statusCode()) {
                 case 200:
-                    ObjectMapper objectMapper = new ObjectMapper();
                     Product product = objectMapper.readValue(response.body(), Product.class);
                     orderItem.setProductStatus(ProductStatus.OK);
                     return new OrderItemProduct(orderItem, product);

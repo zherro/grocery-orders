@@ -6,6 +6,7 @@ import com.grocery.orders.domain.OrderItemProduct;
 import com.grocery.orders.gateway.database.OrderRepository;
 import com.grocery.orders.gateway.http.ProductApiHttpIntegration;
 import com.grocery.orders.mapper.OrderMapper;
+import com.grocery.orders.usecases.UpdateOrderItemWithProductUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final ProductApiHttpIntegration productApiIntegration;
+
+    private final UpdateOrderItemWithProductUseCase updateOrderItemWithProductUseCase;
 
     public Order createOrder(final Order order) {
         log.info("m=createOrder, saving order");
@@ -38,6 +41,7 @@ public class OrderService {
         if(order.shouldEnrichProducts()) {
             var products = order.getProducts().stream()
                     .map(productApiIntegration::enrichOrderProducts)
+                    .map(updateOrderItemWithProductUseCase::execute)
                     .map(OrderItemProduct::getOrderItem)
                     .toList();
             order.setProducts(products);
