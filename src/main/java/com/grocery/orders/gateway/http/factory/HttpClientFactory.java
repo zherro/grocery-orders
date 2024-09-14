@@ -12,7 +12,7 @@ import java.time.Duration;
 @Component
 public class HttpClientFactory {
 
-    public HttpResponse<String> HttpGetClient(final String url) throws IOException, InterruptedException {
+    public HttpResponse<String> httpGetClient(final String url) throws IOException, InterruptedException {
         var client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();

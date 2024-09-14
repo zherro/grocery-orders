@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ApplyQtyBasedPriceOverridePromotionTest {
+class ApplyQtyBasedPriceOverridePromotionTest {
 
     private final ApplyQtyBasedPriceOverridePromotion applyQtyBasedPriceOverridePromotion = new ApplyQtyBasedPriceOverridePromotion();
 

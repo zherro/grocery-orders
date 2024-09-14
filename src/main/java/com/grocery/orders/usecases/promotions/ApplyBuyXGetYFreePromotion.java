@@ -12,21 +12,25 @@ import java.util.Optional;
 @Component
 public class ApplyBuyXGetYFreePromotion {
 
-    public void execute(final OrderItem orderItem, Promotion promotion) {
-        if (Objects.nonNull(promotion) && PromotionType.BUY_X_GET_Y_FREE.equals(promotion.getType())
-                && Objects.nonNull(orderItem) && orderItem.getQty() >= promotion.getRequiredQty()) {
+    private boolean shouldApplyPromotion(final OrderItem orderItem, final Promotion promotion) {
+        return Objects.nonNull(promotion)
+                && PromotionType.BUY_X_GET_Y_FREE.equals(promotion.getType())
+                && Objects.nonNull(orderItem)
+                && orderItem.getQty() >= promotion.getRequiredQty()
+                && orderItem.getQty() > promotion.getRequiredQty();
+    }
 
-            if (orderItem.getQty() > promotion.getRequiredQty()) {
-                BigInteger totalFreeItemValue = orderItem.getPrice()
-                        .multiply(BigInteger.valueOf(promotion.getFreeQty()));
-                BigInteger newTotalPrice = orderItem.getTotalPrice().subtract(totalFreeItemValue);
+    public void execute(final OrderItem orderItem, final Promotion promotion) {
+        if (shouldApplyPromotion(orderItem, promotion)) {
+            BigInteger totalFreeItemValue = orderItem.getPrice()
+                    .multiply(BigInteger.valueOf(promotion.getFreeQty()));
+            BigInteger newTotalPrice = orderItem.getTotalPrice().subtract(totalFreeItemValue);
 
-                var discount = Optional.ofNullable(orderItem.getDiscountPrice())
-                        .orElse(BigInteger.ZERO).add(totalFreeItemValue);
-                orderItem.setDiscountPrice(discount);
-                orderItem.setTotalPrice(newTotalPrice);
-                orderItem.addAppliedPromotion(promotion, totalFreeItemValue);
-            }
+            var discount = Optional.ofNullable(orderItem.getDiscountPrice())
+                    .orElse(BigInteger.ZERO).add(totalFreeItemValue);
+            orderItem.setDiscountPrice(discount);
+            orderItem.setTotalPrice(newTotalPrice);
+            orderItem.addAppliedPromotion(promotion, totalFreeItemValue);
         }
     }
 }

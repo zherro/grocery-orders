@@ -12,3 +12,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+gateway:
+  products:
+    uri: http://localhost:0000/products

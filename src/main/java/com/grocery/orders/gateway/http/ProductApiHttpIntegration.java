@@ -28,7 +28,7 @@ public class ProductApiHttpIntegration {
     public OrderItemProduct enrichOrderProducts(final OrderItem orderItem) {
         log.info("m=enrichOrderProducts, retrieving product information for ID: {}", orderItem.getProductId());
         try {
-            var response = httpClientFactory.HttpGetClient(
+            var response = httpClientFactory.httpGetClient(
                     productsApiUrl + String.format("/%s", orderItem.getProductId()));
 
             switch (response.statusCode()) {

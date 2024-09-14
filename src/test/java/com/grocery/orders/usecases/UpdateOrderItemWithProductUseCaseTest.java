@@ -90,6 +90,6 @@ class UpdateOrderItemWithProductUseCaseTest {
         // Assert
         assertThat(result.getOrderItem().getProductName()).isEqualTo("Amazing Burger");
         assertThat(result.getOrderItem().getPrice()).isEqualTo(BigInteger.ZERO);
-        assertThat(result.getOrderItem().getTotalPrice()).isEqualTo(BigInteger.ZERO);;
+        assertThat(result.getOrderItem().getTotalPrice()).isEqualTo(BigInteger.ZERO);
     }
 }

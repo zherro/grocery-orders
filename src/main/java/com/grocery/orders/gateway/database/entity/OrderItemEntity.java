@@ -31,8 +31,6 @@ public class OrderItemEntity {
     @JoinColumn(name = "order_id")
     private OrderEntity order;
 
-    // private List<OrderItemAppliedPromotion> appliedPromotions;
-
     @PrePersist
     public void generateId() {
         if (this.id == null) {

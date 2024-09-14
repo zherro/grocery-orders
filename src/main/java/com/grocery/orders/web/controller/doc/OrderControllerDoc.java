@@ -62,7 +62,7 @@ public interface OrderControllerDoc {
             )
     })
     @PutMapping("/{orderId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.ACCEPTED)
     Order updateOrder(
             @PathVariable String orderId, @RequestBody @Valid UpdateOrderRequest updateOrderRequest);
 }

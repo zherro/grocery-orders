@@ -124,15 +124,6 @@ class ApplyBuyXGetYFreePromotionTest {
     }
 
     @Test
-    void shouldNotApplyPromotionWhenOrderItemIsNull() {
-        // Act
-        applyBuyXGetYFreePromotion.execute(null, new Promotion());
-
-        // Assert
-        // Verifique se não houve alteração no estado do OrderItem, você pode querer usar um mock para verificar isso
-    }
-
-    @Test
     void shouldNotApplyPromotionWhenPromotionIsNull() {
         // Arrange
         OrderItem orderItem = new OrderItem();

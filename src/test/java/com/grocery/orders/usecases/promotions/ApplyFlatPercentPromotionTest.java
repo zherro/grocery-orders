@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ApplyFlatPercentPromotionTest {
+class ApplyFlatPercentPromotionTest {
 
     private final ApplyFlatPercentPromotion applyFlatPercentPromotion = new ApplyFlatPercentPromotion();
 
