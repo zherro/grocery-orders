@@ -17,10 +17,9 @@ public class ApplyBuyXGetYFreePromotion {
                 && Objects.nonNull(orderItem) && orderItem.getQty() >= promotion.getRequiredQty()) {
 
             if (orderItem.getQty() > promotion.getRequiredQty()) {
-                BigInteger totalFreeItemValue =  Optional.ofNullable(orderItem.getPrice()).orElse(BigInteger.ZERO);
-
-                BigInteger currentTotalPrice = Optional.ofNullable(orderItem.getTotalPrice()).orElse(BigInteger.ZERO);
-                BigInteger newTotalPrice = currentTotalPrice.subtract(totalFreeItemValue);
+                BigInteger totalFreeItemValue = orderItem.getPrice()
+                        .multiply(BigInteger.valueOf(promotion.getFreeQty()));
+                BigInteger newTotalPrice = orderItem.getTotalPrice().subtract(totalFreeItemValue);
 
                 var discount = Optional.ofNullable(orderItem.getDiscountPrice())
                         .orElse(BigInteger.ZERO).add(totalFreeItemValue);

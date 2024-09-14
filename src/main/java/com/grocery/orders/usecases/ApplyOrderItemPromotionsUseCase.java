@@ -4,6 +4,8 @@ import com.grocery.orders.domain.OrderItem;
 import com.grocery.orders.domain.OrderItemProduct;
 import com.grocery.orders.domain.Promotion;
 import com.grocery.orders.usecases.promotions.ApplyBuyXGetYFreePromotion;
+import com.grocery.orders.usecases.promotions.ApplyFlatPercentPromotion;
+import com.grocery.orders.usecases.promotions.ApplyQtyBasedPriceOverridePromotion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +15,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ApplyOrderItemPromotionsUseCase implements UseCase<OrderItemProduct, OrderItem> {
 
+    private final ApplyFlatPercentPromotion applyFlatPercentPromotion;
     private final ApplyBuyXGetYFreePromotion applyBuyXGetYFreePromotion;
+    private final ApplyQtyBasedPriceOverridePromotion applyQtyBasedPriceOverridePromotion;
 
     @Override
     public OrderItem execute(OrderItemProduct input) {
@@ -29,6 +33,8 @@ public class ApplyOrderItemPromotionsUseCase implements UseCase<OrderItemProduct
     private void applyOrderItemPromotion(final OrderItem orderItem, final Promotion promotion) {
         switch (promotion.getType()) {
             case BUY_X_GET_Y_FREE -> applyBuyXGetYFreePromotion.execute(orderItem, promotion);
+            case QTY_BASED_PRICE_OVERRIDE -> applyQtyBasedPriceOverridePromotion.execute(orderItem, promotion);
+            case FLAT_PERCENT -> applyFlatPercentPromotion.execute(orderItem, promotion);
         }
     }
 }

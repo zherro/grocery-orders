@@ -15,5 +15,4 @@ public class Promotion {
     private BigInteger price;
     private Long requiredQty;
     private Long freeQty;
-
 }
