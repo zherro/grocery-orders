@@ -2,12 +2,15 @@ package com.grocery.orders.gateway.service;
 
 import com.grocery.orders.config.exception.BusinessException;
 import com.grocery.orders.domain.Order;
-import com.grocery.orders.domain.OrderItemProduct;
+import com.grocery.orders.gateway.database.OrderItemRepository;
 import com.grocery.orders.gateway.database.OrderRepository;
 import com.grocery.orders.gateway.http.ProductApiHttpIntegration;
 import com.grocery.orders.mapper.OrderMapper;
 import com.grocery.orders.usecases.ApplyOrderItemPromotionsUseCase;
+import com.grocery.orders.usecases.MergeDuplicateOrderItemsUseCase;
+import com.grocery.orders.usecases.OrderProcessUseCase;
 import com.grocery.orders.usecases.UpdateOrderItemWithProductUseCase;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,16 +22,20 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ProductApiHttpIntegration productApiIntegration;
 
     private final UpdateOrderItemWithProductUseCase updateOrderItemWithProductUseCase;
     private final ApplyOrderItemPromotionsUseCase applyOrderItemPromotionsUseCase;
+    private final OrderProcessUseCase orderProcessUseCase;
+    private final MergeDuplicateOrderItemsUseCase mergeDuplicateOrderItemsUseCase;
 
     public Order createOrder(final Order order) {
         log.info("m=createOrder, saving order");
         return Optional.of(order)
+                .map(mergeDuplicateOrderItemsUseCase::execute)
                 .map(orderMapper::dtoToEntity)
                 .map(orderRepository::save)
                 .map(orderMapper::entityToDto)
@@ -49,14 +56,18 @@ public class OrderService {
             order.setProducts(products);
         }
 
-        return order;
+        return orderProcessUseCase.execute(order);
     }
 
+    @Transactional
     public Order updateOrder(final String orderId, final Order orderUpdate) {
         var order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException("Order not found"));
 
+        orderItemRepository.deleteByOrderId(order.getId());
+
         return Optional.ofNullable(orderUpdate)
+                .map(mergeDuplicateOrderItemsUseCase::execute)
                 .map(orderMapper::dtoToEntity)
                 .map(o -> {
                     order.setProducts(o.getProducts());

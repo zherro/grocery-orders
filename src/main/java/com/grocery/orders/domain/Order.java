@@ -7,6 +7,7 @@ import lombok.Setter;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -22,5 +23,13 @@ public class Order {
 
     public boolean shouldEnrichProducts() {
         return !OrderStatus.CLOSED.equals(this.getStatus()) && Objects.nonNull(this.getProducts());
+    }
+
+    public BigInteger getOrderTotalDiscount() {
+        return Optional.ofNullable(orderTotalDiscount).orElse(BigInteger.ZERO);
+    }
+
+    public BigInteger getOrderTotalPrice() {
+        return Optional.ofNullable(orderTotalPrice).orElse(BigInteger.ZERO);
     }
 }

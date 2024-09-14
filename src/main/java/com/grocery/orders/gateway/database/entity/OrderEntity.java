@@ -10,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,11 +40,17 @@ public class OrderEntity {
     private List<OrderItemEntity> products;
 
     @PrePersist
-    public void generateId() {
+    private void onCreate() {
         if (this.id == null) {
             this.id = UUID.randomUUID().toString();
         }
         status = OrderStatus.OPEN;
+        Optional.ofNullable(products).orElse(new ArrayList<>())
+                .forEach(p -> p.setOrder(this));
+    }
+
+    @PreUpdate
+    private void onUpdate() {
         Optional.ofNullable(products).orElse(new ArrayList<>())
                 .forEach(p -> p.setOrder(this));
     }
