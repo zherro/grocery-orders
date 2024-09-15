@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  #  PostgreSQL
+  grocery-orders-postgres:
+    image: postgres:latest
+    container_name: grocery-orders-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: orders_db
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-grocery-orders-network
+
+  # wiremock-products service
+  grocery-orders-wiremock-products:
+    image: zherro/wiremock-products:latest
+    container_name: grocery-orders-wiremock-products
+    ports:
+      - "18081:8081"
+    networks:
+      - app-grocery-orders-network
+
+  # Serviço Spring Boot API
+  grocery-orders-spring-api:
+    image: zherro/grocery-orders-api:latest
+    container_name: grocery-orders-spring-api
+    ports:
+      - "18080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://grocery-orders-postgres:5432/orders_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_PRODUCTS_SERVICE: http://grocery-orders-wiremock-products:8081/products
+    depends_on:
+      - grocery-orders-postgres
+      - grocery-orders-wiremock-products
+    networks:
+      - app-grocery-orders-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-grocery-orders-network:
+    driver: bridge
