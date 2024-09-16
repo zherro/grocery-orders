@@ -15,7 +15,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +41,9 @@ public class OrderEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItemEntity> products;
 
+    private Date createdAt;
+    private Date updateAt;
+
     @PrePersist
     private void onCreate() {
         if (this.id == null) {
@@ -47,11 +52,13 @@ public class OrderEntity {
         status = OrderStatus.OPEN;
         Optional.ofNullable(products).orElse(new ArrayList<>())
                 .forEach(p -> p.setOrder(this));
+        createdAt = new Date();
     }
 
     @PreUpdate
     private void onUpdate() {
         Optional.ofNullable(products).orElse(new ArrayList<>())
                 .forEach(p -> p.setOrder(this));
+        updateAt = new Date();
     }
 }

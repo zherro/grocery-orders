@@ -5,6 +5,7 @@ import com.grocery.orders.IntegrationTest.data.OrderData;
 import com.grocery.orders.domain.OrderItem;
 import com.grocery.orders.domain.OrderItemProduct;
 import com.grocery.orders.domain.Product;
+import com.grocery.orders.domain.enums.OrderStatus;
 import com.grocery.orders.gateway.database.OrderItemRepository;
 import com.grocery.orders.gateway.database.OrderRepository;
 import com.grocery.orders.gateway.database.entity.OrderEntity;
@@ -23,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -164,11 +166,46 @@ class OrderControllerIntegrationTest {
                 .andExpect(jsonPath("$.products[0].total_price").value(1998));
     }
 
+    @Test
+    void shouldReturnOrdersByCustomerIdAndStatusWithPagination() throws Exception {
+        // Given
+        String customerId = "customer_1";
+        OrderStatus status = OrderStatus.OPEN;
+
+        // When
+        createTestOrders();
+
+        // Then
+        mockMvc.perform(get("/api/orders")
+                        .param("customer_id", customerId)
+                        .param("status", status.name())
+                        .param("page", "0")
+                        .param("size", "2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].customer_id").value(customerId))
+                .andExpect(jsonPath("$.content[0].status").value(status.name()))
+                .andExpect(jsonPath("$.content[1].customer_id").value(customerId))
+                .andExpect(jsonPath("$.total_pages").value(1))
+                .andExpect(jsonPath("$.total_elements").value(2));
+    }
+
     private void createOrder(String payload, ResultMatcher status) throws Exception {
         mockMvc.perform(post("/api/orders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status);
+    }
+
+    private OrderEntity createOrder2(String customerId, OrderStatus status) {
+        OrderEntity order = new OrderEntity();
+        order.setCustomerId(customerId);
+        order.setCustomerName("Customer Test");
+        order.setStatus(status);
+        order.setOrderTotalPrice(BigInteger.valueOf(1000));
+        order.setOrderTotalDiscount(BigInteger.valueOf(100));
+        return order;
     }
 
     private OrderEntity getFirstOrder() {
@@ -184,5 +221,15 @@ class OrderControllerIntegrationTest {
         Mockito.when(productApiHttpIntegration.enrichOrderProducts(Mockito.any(OrderItem.class)))
                 .thenReturn(orderitemProduct);
         return orderitemProduct;
+    }
+
+    private void createTestOrders() {
+        List<OrderEntity> orders = List.of(
+                createOrder2("customer_1", OrderStatus.OPEN),
+                createOrder2("customer_1", OrderStatus.OPEN),
+                createOrder2("customer_1", OrderStatus.CLOSED),
+                createOrder2("customer_2", OrderStatus.OPEN)
+        );
+        orderRepository.saveAll(orders);
     }
 }

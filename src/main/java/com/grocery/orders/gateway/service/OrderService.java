@@ -2,6 +2,7 @@ package com.grocery.orders.gateway.service;
 
 import com.grocery.orders.config.exception.BusinessException;
 import com.grocery.orders.domain.Order;
+import com.grocery.orders.domain.enums.OrderStatus;
 import com.grocery.orders.gateway.database.OrderItemRepository;
 import com.grocery.orders.gateway.database.OrderRepository;
 import com.grocery.orders.gateway.http.ProductApiHttpIntegration;
@@ -13,6 +14,10 @@ import com.grocery.orders.usecases.UpdateOrderItemWithProductUseCase;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -76,5 +81,12 @@ public class OrderService {
                 .map(orderRepository::save)
                 .map(orderMapper::entityToDto)
                 .get();
+    }
+
+    public Page<Order> searchOrders(String customerId, OrderStatus status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        var results = orderRepository.findOrders(customerId, status, pageable);
+        var orders = results.stream().map(orderMapper::entityToDto).toList();
+        return new PageImpl<>(orders, results.getPageable(), results.getSize());
     }
 }
