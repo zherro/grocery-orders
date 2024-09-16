@@ -26,9 +26,7 @@ public class ApplyBuyXGetYFreePromotion {
                     .multiply(BigInteger.valueOf(promotion.getFreeQty()));
             BigInteger newTotalPrice = orderItem.getTotalPrice().subtract(totalFreeItemValue);
 
-            var discount = Optional.ofNullable(orderItem.getDiscountPrice())
-                    .orElse(BigInteger.ZERO).add(totalFreeItemValue);
-            orderItem.setDiscountPrice(discount);
+            orderItem.setDiscountPrice(totalFreeItemValue);
             orderItem.setTotalPrice(newTotalPrice);
             orderItem.addAppliedPromotion(promotion, totalFreeItemValue);
         }

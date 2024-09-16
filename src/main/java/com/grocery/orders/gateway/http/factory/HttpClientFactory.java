@@ -14,7 +14,7 @@ public class HttpClientFactory {
 
     public HttpResponse<String> httpGetClient(final String url) throws IOException, InterruptedException {
         var client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
+                .connectTimeout(Duration.ofSeconds(5))
                 .build();
 
         HttpRequest request = HttpRequest.newBuilder()

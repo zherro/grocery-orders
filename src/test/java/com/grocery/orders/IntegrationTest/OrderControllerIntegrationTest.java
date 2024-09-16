@@ -2,6 +2,7 @@ package com.grocery.orders.IntegrationTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grocery.orders.IntegrationTest.data.OrderData;
+import com.grocery.orders.domain.Order;
 import com.grocery.orders.domain.OrderItem;
 import com.grocery.orders.domain.OrderItemProduct;
 import com.grocery.orders.domain.Product;
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,6 +71,7 @@ class OrderControllerIntegrationTest {
     @Test
     void shouldCreateNewOrder() throws Exception {
         // Given
+        mockProductResponse(new OrderEntity(), 4);
         createOrder(OrderData.CREATE_ORDER_PAYLOAD, status().isCreated());
 
         // When
@@ -98,11 +101,11 @@ class OrderControllerIntegrationTest {
     @Test
     void shouldGetCreatedOrderById() throws Exception {
         // Given
+        mockProductResponse(new OrderEntity(), 5);
         createOrder(OrderData.CREATE_ORDER_PAYLOAD_0, status().isCreated());
 
         // When
         var order = getFirstOrder();
-        mockProductResponse(order);
 
         // Assert
         mockMvc.perform(get("/api/orders/{id}", order.getId())
@@ -138,10 +141,13 @@ class OrderControllerIntegrationTest {
     @Test
     void shouldUpdateOrder() throws Exception {
         // Given
+        mockProductResponse(new OrderEntity(), 5);
         createOrder(OrderData.CREATE_ORDER_PAYLOAD_0, status().isCreated());
 
         // When
         var order = getFirstOrder();
+        order.setProducts(new ArrayList<>());
+        mockProductResponse(order, 2);
 
         mockMvc.perform(put("/api/orders/{id}", order.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -149,7 +155,6 @@ class OrderControllerIntegrationTest {
                 .andExpect(status().isAccepted());
 
         // Assert
-        mockProductResponse(order);
         mockMvc.perform(get("/api/orders/{id}", order.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -213,9 +218,14 @@ class OrderControllerIntegrationTest {
         return orders.get(0);
     }
 
-    private OrderItemProduct mockProductResponse(OrderEntity order) throws Exception {
+    private OrderItemProduct mockProductResponse(OrderEntity order, long qty) throws Exception {
+        var mockProductItem = new OrderItem();
+        mockProductItem.setProductId("PWWe3w1SDU");
+        mockProductItem.setQty(qty);
         var product = objectMapper.readValue(OrderData.MOCK_PRODUCT_RESPONSE, Product.class);
-        var orderItem = orderMapper.entityToDto(order).getProducts().get(0);
+        var orderItem = orderMapper.entityToDto(order).getProducts().size() <= 0
+                ?  mockProductItem
+                : orderMapper.entityToDto(order).getProducts().get(0);
         var orderitemProduct = new OrderItemProduct(orderItem, product);
 
         Mockito.when(productApiHttpIntegration.enrichOrderProducts(Mockito.any(OrderItem.class)))

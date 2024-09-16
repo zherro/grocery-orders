@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -35,5 +36,9 @@ public class Order {
 
     public BigInteger getOrderTotalPrice() {
         return Optional.ofNullable(orderTotalPrice).orElse(BigInteger.ZERO);
+    }
+
+    public List<OrderItem> getProducts() {
+        return Optional.ofNullable(products).orElse(new ArrayList<>());
     }
 }

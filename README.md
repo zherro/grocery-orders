@@ -21,7 +21,7 @@ The API simulate the backend of a system that processes customer purchases, appl
 - **Wiremock**: Simulated the external product API.
 - **Database**: PostgreSQL
 
-## How to Run
+## How to build and Run
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/zherro/grocery-orders
@@ -43,6 +43,22 @@ The API simulate the backend of a system that processes customer purchases, appl
 
 4. **Access the API**:  
    The API will be available at `http://localhost:8080`.
+
+
+## How to Run with Docker
+   Running service with docker. (this provided a complete setup for test/validation purpose )
+
+   ```bash
+   git clone https://github.com/zherro/grocery-orders
+   
+   cd grocery-orders
+   
+   docker compose up -d
+   ```
+
+   - **Open API Doc (Swagger)**: http://localhost:18080/swagger-ui/index.html
+   - **Wiremock Products**: http://localhost:18081/:paths
+
 
 ## API Endpoints
 
@@ -180,6 +196,12 @@ The API simulate the backend of a system that processes customer purchases, appl
 }
 ```
 
+## Get All orders
+
+- **Endpoint**: `GET /api/orders`
+
+Provide search for all orders by customer.
+
 ## How Promotions Work
 - **BUY_X_GET_Y_FREE**: If a customer buys X items or more, they get Y items free.
 - **QTY_BASED_PRICE_OVERRIDE**: If a customer buys a minimum quantity of items, a fixed price is applied for promotion item quantity.
@@ -248,7 +270,14 @@ The project is setup to min of 80% of coverage.
    3. 02:00 hours: documentation (I have dedicated a good time to make a rich documentation (readme), to simplify de project understand)
 
 2. **What was the most useful feature that was added to the latest version of your chosen language? Please include a snippet of code that shows how you've used it.**  
-   _[Answer to be filled]_
+   I used some updates of last Java JDK versions:
+   - var declaration by type inference
+   - new switch-case
+   - HttpClient library
+
+   May be, we can use virtual treads of java 21 to process requests from detail products, when needed retrieve product promotions information. But, this information could be served with product too, this is another way to reduce the number of product details requests.
+
+   ![Jacoco Report](doc/java-21http.png)
 
 3. **What did you find most difficult?**  
    I didn't have the biggest difficulty with this test, I liked to do this.
@@ -259,7 +288,11 @@ The project is setup to min of 80% of coverage.
    observing the promotion domain name from wiremock.
 
 4. **What mechanism did you put in place to track down issues in production on this code? If you didn’t put anything, write down what you could do.**  
-   _[Answer to be filled]_
+   This project is prepared to deploy with docker.
+   
+   In production, we can use Kubernates to manage scalability and infrastructure resources (memory, cpu).
+
+   For metrics has many ways todo this, using plugins or log tracing.
 
 5. **The Wiremock represents one source of information. We should be prepared to integrate with more sources. List the steps that we would need to take to add more sources of items with different formats and promotions.**  
    To add more types of promotions, you need change only two points:

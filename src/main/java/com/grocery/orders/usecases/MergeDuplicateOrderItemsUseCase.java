@@ -25,7 +25,10 @@ public class MergeDuplicateOrderItemsUseCase implements UseCase<Order, Order> {
             return order;
         }
 
-        order.getProducts().removeIf(item -> item.getQty() <= 0);
+        order.setProducts(
+            order.getProducts().stream()
+                    .filter(item -> item.getQty() > 0)
+                    .toList());
 
         Map<String, List<OrderItem>> groupedByProductId = order.getProducts().stream()
                 .collect(Collectors.groupingBy(OrderItem::getProductId));

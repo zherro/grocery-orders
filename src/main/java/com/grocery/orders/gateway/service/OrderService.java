@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Slf4j
@@ -39,8 +40,10 @@ public class OrderService {
 
     public Order createOrder(final Order order) {
         log.info("m=createOrder, saving order");
+
         return Optional.of(order)
                 .map(mergeDuplicateOrderItemsUseCase::execute)
+                .map(this::processOrder)
                 .map(orderMapper::dtoToEntity)
                 .map(orderRepository::save)
                 .map(orderMapper::entityToDto)
@@ -52,15 +55,7 @@ public class OrderService {
                 .map(orderMapper::entityToDto)
                 .orElseThrow(() -> new BusinessException("Order not found"));
 
-        if(order.shouldEnrichProducts()) {
-            var products = order.getProducts().stream()
-                    .map(productApiIntegration::enrichOrderProducts)
-                    .map(updateOrderItemWithProductUseCase::execute)
-                    .map(applyOrderItemPromotionsUseCase::execute)
-                    .toList();
-            order.setProducts(products);
-        }
-
+        processOrder(order);
         return orderProcessUseCase.execute(order);
     }
 
@@ -73,6 +68,7 @@ public class OrderService {
 
         return Optional.ofNullable(orderUpdate)
                 .map(mergeDuplicateOrderItemsUseCase::execute)
+                .map(this::processOrder)
                 .map(orderMapper::dtoToEntity)
                 .map(o -> {
                     order.setProducts(o.getProducts());
@@ -88,5 +84,17 @@ public class OrderService {
         var results = orderRepository.findOrders(customerId, status, pageable);
         var orders = results.stream().map(orderMapper::entityToDto).toList();
         return new PageImpl<>(orders, results.getPageable(), results.getSize());
+    }
+
+    private Order processOrder(final Order order) {
+        if(order.shouldEnrichProducts()) {
+            var products = order.getProducts().stream()
+                    .map(productApiIntegration::enrichOrderProducts)
+                    .map(updateOrderItemWithProductUseCase::execute)
+                    .map(applyOrderItemPromotionsUseCase::execute)
+                    .toList();
+            order.setProducts(products);
+        }
+        return order;
     }
 }
